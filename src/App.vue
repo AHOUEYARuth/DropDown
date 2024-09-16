@@ -3,15 +3,20 @@
     <h1>Custom DropDown</h1>
     <div class="dropdown" ref="dropdown">
       <div class="select" @click="view">
+        <!-- <span class="selected" v-if="chevron = true" v-for="manyItem in manyItemSelected">{{ manyItem }}</span> -->
         <span class="selected">{{ selectedText }}</span>
+        <!-- <span class="selected" v-else v-for="manyItem in manyItemSelected">{{ manyItem }}</span> -->
         <div class="caret" :class="{ 'caret_rotate': isOpen }"></div>
       </div>
       <ul :class="{ 'menu_open': isOpen }">
+        <li class="option_section" @click="displayChev">
+          <div class="chev" v-show="chevron"><img src="/src/assets/check_small_24dp_000_FILL0_wght400_GRAD0_opsz24.svg" alt="" style="width: 20px;" /></div>
+          <option>Select many item</option>
+        </li>
         <li
           v-for="(item, index) in items"
           :key="index"
-          @click="selectItem(item, index)"
-        >
+          @click="selectItem(item, index)">
           <span>{{ item }}</span>
           <div :class="['div', { 'display_button': selectedIndex === index }]">
             <img src="/src/assets/sma.png" alt="" style="width: 25px;" />
@@ -28,8 +33,9 @@ import { ref } from 'vue';
 const isOpen = ref(false);
 const selectedText = ref('Select an item');
 const items = ['First Item', 'Second Item', 'Third Item', 'Fourth Item', 'Fifth Item'];
-const selectedIndex = ref(-1); 
-
+const selectedIndex = ref(1); 
+const chevron = ref(false);
+const manyItemSelected = ref([])
 function view() {
   isOpen.value = !isOpen.value;
 }
@@ -37,8 +43,14 @@ function view() {
 function selectItem(item: string, index: number) {
   selectedText.value = item;
   isOpen.value = false;
-  selectedIndex.value = index; 
+  selectedIndex.value = index;  
+  manyItemSelected.value.push(item)
 }
+
+
+const displayChev = () => {
+  chevron.value = !chevron.value;
+};
 </script>
 
 <style scoped>
@@ -48,7 +60,6 @@ function selectItem(item: string, index: number) {
   display: flex;
   align-items: center;
   padding-top: 40px;
- /*  justify-content: center; */
   flex-direction: column;
 }
 
@@ -134,5 +145,16 @@ ul li:last-child {
 
 .display_button {
   display: flex;
+}
+.option_section{
+  justify-content: start;
+}
+.chev{
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+option{
+  color: red;
 }
 </style>
