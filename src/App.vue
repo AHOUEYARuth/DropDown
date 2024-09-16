@@ -3,15 +3,16 @@
     <h1>Custom DropDown</h1>
     <div class="dropdown" ref="dropdown">
       <div class="select" @click="view">
-        <!-- <span class="selected" v-if="chevron = true" v-for="manyItem in manyItemSelected">{{ manyItem }}</span> -->
-        <span class="selected">{{ selectedText }}</span>
-        <!-- <span class="selected" v-else v-for="manyItem in manyItemSelected">{{ manyItem }}</span> -->
+        <span class="selected" v-if="!multiSelect">{{ selectedText }}</span>
+        <span class="selected" v-else v-for="manyItem in manyItemSelected" :key="manyItem">{{ manyItem }}</span>
         <div class="caret" :class="{ 'caret_rotate': isOpen }"></div>
       </div>
       <ul :class="{ 'menu_open': isOpen }">
-        <li class="option_section" @click="displayChev">
-          <div class="chev" v-show="chevron"><img src="/src/assets/check_small_24dp_000_FILL0_wght400_GRAD0_opsz24.svg" alt="" style="width: 20px;" /></div>
-          <option>Select many item</option>
+        <li class="option_section" @click="selectMultiItem">
+          <div class="chev" v-if="multiSelect">
+            <img src="/src/assets/check_small_24dp_000_FILL0_wght400_GRAD0_opsz24.svg" alt="" style="width: 20px;" />
+          </div>
+          <option>Select many items</option>
         </li>
         <li
           v-for="(item, index) in items"
@@ -19,40 +20,50 @@
           @click="selectItem(item, index)">
           <span>{{ item }}</span>
           <div :class="['div', { 'display_button': selectedIndex === index }]">
-            <img src="/src/assets/sma.png" alt="" style="width: 25px;" />
+            <img src="/src/assets/sma.png" alt="icon" style="width: 25px;" />
           </div>
         </li>
       </ul>
     </div>
   </div>
 </template>
-
 <script setup lang="ts">
 import { ref } from 'vue';
 
-const isOpen = ref(false);
-const selectedText = ref('Select an item');
-const items = ['First Item', 'Second Item', 'Third Item', 'Fourth Item', 'Fifth Item'];
-const selectedIndex = ref(1); 
-const chevron = ref(false);
-const manyItemSelected = ref([])
+const isOpen = ref(false);                   
+const selectedText = ref('Select an item');  
+const items = ['First Item', 'Second Item', 'Third Item', 'Fourth Item', 'Fifth Item'];  
+const selectedIndex = ref(1);  
+const multiSelect = ref(false);           
+const manyItemSelected = ref(['']);  
+
+
 function view() {
   isOpen.value = !isOpen.value;
 }
 
+
 function selectItem(item: string, index: number) {
-  selectedText.value = item;
-  isOpen.value = false;
-  selectedIndex.value = index;  
-  manyItemSelected.value.push(item)
+  if (multiSelect.value) {
+    if (manyItemSelected.value.includes(item)) {
+      manyItemSelected.value = manyItemSelected.value.filter(i => i !== item);
+    } else {
+      manyItemSelected.value.push(item);
+    }
+  } else {
+    selectedText.value = item;
+    selectedIndex.value = index;
+    isOpen.value = false;
+  }
 }
 
-
-const displayChev = () => {
-  chevron.value = !chevron.value;
-};
+function selectMultiItem() {
+  multiSelect.value = !multiSelect.value;
+  if (!multiSelect.value) {
+    manyItemSelected.value = [];
+  }
+}
 </script>
-
 <style scoped>
 .container {
   width: 100%;
@@ -65,10 +76,7 @@ const displayChev = () => {
 
 .dropdown {
   width: 250px;
-}
-
-.dropdown * {
-  box-sizing: border-box;
+  position: relative;
 }
 
 .select {
@@ -92,8 +100,7 @@ ul {
   z-index: 1;
   transition: 0.2s;
   position: absolute;
-  border-bottom: 10px;
-  width: 250px;
+  width: 100%;
 }
 
 .menu_open {
@@ -111,7 +118,7 @@ ul li {
 }
 
 ul li:hover {
-  background-color: #0000001e;
+  background-color: #f0f0f0;
 }
 
 ul li:last-child {
@@ -135,26 +142,27 @@ ul li:last-child {
   height: 20px;
   width: 20px;
   background-color: #000;
-  border: 1px solid grey;
-  border-radius: 20px;
-  display: flex;
+  border-radius: 50%;
+  display: none;
   align-items: center;
   justify-content: center;
-  display: none;
 }
 
 .display_button {
   display: flex;
 }
-.option_section{
+
+.option_section {
   justify-content: start;
 }
-.chev{
+
+.chev {
   display: flex;
   align-items: center;
   gap: 10px;
 }
-option{
+
+option {
   color: red;
 }
 </style>
